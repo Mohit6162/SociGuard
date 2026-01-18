@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocioGuard | Secure Society Management</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div id="login-screen" class="screen login-page">
+        <div class="login-card">
+            <div class="shield-logo">🛡️</div>
+            <h1>SocioGuard</h1>
+            <p>Secure Society Management System</p>
+            <div class="input-group">
+                <label>Username / ID</label>
+                <input type="text" id="user-id" value="admin_123">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="pass" value="password">
+            </div>
+            <button class="btn btn-navy full-width" onclick="navigateTo('dashboard-screen')">Login to System</button>
+            <p class="auth-footer">Authorized Personnel Only.</p>
+        </div>
+    </div>
+
+    <div id="dashboard-screen" class="screen" style="display:none;">
+        <nav class="navbar">
+            <div class="logo">🛡️ SocioGuard</div>
+            <button class="logout-btn" onclick="navigateTo('login-screen')">Logout 🚪</button>
+        </nav>
+
+        <div class="content-wrapper">
+            <header class="dash-header">
+                <div class="header-text">
+                    <h1>Security Dashboard</h1>
+                    <p>Real-time overview of society security status.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-purple" onclick="openIncidentModal()">Report Incident ✨</button>
+                    <button class="btn btn-teal" onclick="navigateTo('visitor-screen')">+ New Visitor Entry</button>
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card border-blue" onclick="showVisitorDetails()">
+                    <p class="label">TODAY'S VISITORS</p>
+                    <h2 id="live-visitor-count">2</h2>
+                    <span class="trend">↑ Click to view list</span>
+                </div>
+                <div class="stat-card border-yellow" onclick="showPendingDetails()">
+                    <p class="label">PENDING REVIEW</p>
+                    <h2 id="pending-count">2</h2>
+                    <span class="sub-text">Manual check required</span>
+                </div>
+                <div class="stat-card border-red" onclick="showAlertDetails()">
+                    <p class="label">SECURITY ALERTS</p>
+                    <h2 id="alert-count">0</h2>
+                    <span class="sub-text">System Status: Secure</span>
+                </div>
+                <div class="stat-card border-green">
+                    <p class="label">OCCUPANCY</p>
+                    <h2 id="occ-percent">85%</h2>
+                    <span class="sub-text">85/100 Flats Occupied</span>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3>Visitor Traffic (Last 7 Days)</h3>
+                    <canvas id="trafficChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Society Occupancy</h3>
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="log-box">
+                <div class="log-header">
+                    <div class="log-title-area">
+                        <h3>Recent Entry Logs</h3>
+                        <span class="live-badge">● Live Feed</span>
+                    </div>
+                    <input type="text" id="logSearch" placeholder="Search logs..." onkeyup="handleSearch(this.value)" class="search-input">
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>TIME IN</th>
+                                <th>VISITOR NAME</th>
+                                <th>FLAT NO.</th>
+                                <th>PURPOSE</th>
+                                <th>OUT TIME</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="log-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="visitor-screen" class="screen" style="display:none;">
+        <nav class="navbar">
+            <button class="back-link" onclick="navigateTo('dashboard-screen')">← Dashboard</button>
+            <div class="logo">Visitor Entry</div>
+        </nav>
+        <div class="content-wrapper">
+            <div class="form-card">
+                <h3>Visitor Details</h3>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="v-phone" placeholder="9876543210">
+                    </div>
+                    <div class="input-group">
+                        <label>Unique ID</label>
+                        <input type="text" id="v-id" readonly class="readonly-input">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <input type="text" id="v-name" placeholder="Enter full name">
+                </div>
+                <div class="input-group">
+                    <label>Flat Number</label>
+                    <input type="text" id="v-flat" placeholder="e.g. A-102">
+                </div>
+                <div class="input-group">
+                    <label>Purpose of Visit</label>
+                    <input type="text" id="v-purpose" placeholder="e.g. Delivery, Guest, Maintenance">
+                </div>
+            </div>
+            <button class="btn-approve" onclick="approveEntry()">Approve Entry ✅</button>
+        </div>
+    </div>
+
+    <div id="ai-modal" class="modal">
+        <div class="modal-content">
+            <h3>Incident Logger</h3>
+            <input type="text" id="ai-visitor-name" placeholder="Visitor Involved Name">
+            <textarea id="ai-text" placeholder="Describe the incident..."></textarea>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeIncidentModal()">Cancel</button>
+                <button class="btn btn-purple" onclick="generateReport()">Generate Report ✨</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="details-title">Details</h3>
+                <button class="close-x" onclick="closeDetails()">×</button>
+            </div>
+            <div id="details-list-container"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
